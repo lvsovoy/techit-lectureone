@@ -15,10 +15,10 @@ public class BookInfo {
     private String title;
 
     @JsonProperty("author_name")
-    private String authorName;
+    private List<String> authorName;
 
     @JsonProperty("author_key")
-    private String authorKey;
+    private List<String> authorKey;
 
     @JsonProperty("subject")
     private List<String> tags;
