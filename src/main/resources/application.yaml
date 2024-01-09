@@ -1,0 +1,11 @@
+logging:
+  level:
+    root: INFO
+    lt.techin: DEBUG
+
+spring:
+  jackson:
+    defaultPropertyInclusion: non-null
+    deserialization:
+      failOnUnknownProperties: false
+

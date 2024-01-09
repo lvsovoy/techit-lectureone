@@ -1,24 +1,36 @@
 package lt.techin.lectureone.model.mapper;
 
 import lombok.experimental.UtilityClass;
-import lt.techin.lectureone.external.model.BookInfo;
-import lt.techin.lectureone.external.model.BookSearchResponse;
+import lt.techin.lectureone.external.model.AuthorWorksResponse;
+import lt.techin.lectureone.model.response.Book;
 import lt.techin.lectureone.model.response.BookResponse;
+
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class BookMapper {
 
-    public static BookResponse map(BookSearchResponse bookSearchResponse) {
-        //todo get first result and map it to our book response model
-
-        BookInfo bookInfo = bookSearchResponse.getDocs().iterator().next();
-
+    public static BookResponse map(AuthorWorksResponse authorWorksResponse, String author) {
         return BookResponse.builder()
-                .title(bookInfo.getTitle())
-                .publishYear(bookInfo.getFirstPublishYear())
-                .author(bookInfo.getAuthorName().getFirst())
-                .authorId(bookInfo.getAuthorKey().getFirst())
-                .tags(bookInfo.getTags())
+                .author(author)
+                .books(authorWorksResponse.getEntries().stream()
+                        .map((BookMapper::mapBook))
+                        .collect(Collectors.toList()))
                 .build();
+    }
+
+    public static Book mapBook(AuthorWorksResponse.WorkEntry workEntry) {
+
+        Book.BookBuilder builder = Book.builder()
+                .openLibraryKey(workEntry.getKey())
+                .title(workEntry.getTitle())
+                .description(workEntry.getDescription())
+                .tags(workEntry.getSubjects());
+
+        if (workEntry.getCreated() != null) {
+            builder.publishDate(workEntry.getCreated().getValue());
+        }
+
+        return builder.build();
     }
 }
