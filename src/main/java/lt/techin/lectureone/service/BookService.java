@@ -17,7 +17,7 @@ public class BookService {
 
     private final OpenLibraryClient openLibraryClient;
 
-    public BookResponse getAuthorsWorks(String author) throws IOException, InterruptedException {
+    public BookResponse getAuthorsWorks(String author, int count) throws IOException, InterruptedException {
 
         String olid = openLibraryClient.getAuthorOlid(author);
         AuthorWorksResponse authorWorksResponse = openLibraryClient.getWorks(olid);

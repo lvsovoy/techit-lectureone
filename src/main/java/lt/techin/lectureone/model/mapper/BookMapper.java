@@ -5,8 +5,6 @@ import lt.techin.lectureone.external.model.AuthorWorksResponse;
 import lt.techin.lectureone.model.response.Book;
 import lt.techin.lectureone.model.response.BookResponse;
 
-import java.util.stream.Collectors;
-
 @UtilityClass
 public class BookMapper {
 
@@ -15,7 +13,7 @@ public class BookMapper {
                 .author(author)
                 .books(authorWorksResponse.getEntries().stream()
                         .map((BookMapper::mapBook))
-                        .collect(Collectors.toList()))
+                        .toList())
                 .build();
     }
 

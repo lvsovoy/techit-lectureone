@@ -24,7 +24,7 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler({ServletException.class})
     protected ResponseEntity<ErrorResponse> handle(ServletException exception, HttpServletRequest httpServletRequest) {
-        return ResponseEntity.badRequest()
+        return ResponseEntity.internalServerError()
                 .body(
                         ErrorResponse.builder()
                                 .message(String.format("Request %s %s failed", httpServletRequest.getMethod(), httpServletRequest.getRequestURI()))
