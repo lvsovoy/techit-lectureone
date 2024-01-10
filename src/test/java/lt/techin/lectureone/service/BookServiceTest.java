@@ -6,6 +6,8 @@ import lt.techin.lectureone.external.model.AuthorWorksResponse;
 import lt.techin.lectureone.model.response.Book;
 import lt.techin.lectureone.model.response.BookResponse;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -54,6 +56,16 @@ class BookServiceTest {
         assertEquals("Description 1", firstEntry.getDescription());
         assertEquals("Publish Date 1", firstEntry.getPublishDate());
         assertEquals("Title 1", firstEntry.getTitle());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Terry Pratchett",
+            "     Terry Pratchett     ",
+            "TeRrY PrAtcHeTt"
+    })
+    void testSanitizeAuthorKey(String input) {
+        assertEquals("TERRY_PRATCHETT", BookService.sanitizeAuthorKey(input));
     }
 
     private AuthorWorksResponse generateAuthorWorksResponse() {

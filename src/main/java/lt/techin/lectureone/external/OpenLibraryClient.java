@@ -27,9 +27,11 @@ public class OpenLibraryClient {
                 .retrieve()
                 .body(SearchResponse.class);
 
-        return searchResponse.getDocs()
-                .getFirst()// todo fix null safety
-                .getKey();
+        if (searchResponse != null && (!searchResponse.getDocs().isEmpty())) {
+                return searchResponse.getDocs().getFirst().getKey();
+        }
+
+        return "";
     }
 
     public AuthorWorksResponse getWorks(String olid) {

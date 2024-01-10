@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lt.techin.lectureone.model.response.ErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,11 +34,21 @@ public class ApplicationExceptionHandler {
                 );
     }
 
-    @ExceptionHandler({RuntimeException.class})
-    protected ResponseEntity<ErrorResponse> handle(Exception exception) {
-        return ResponseEntity.internalServerError()
-                .body(ErrorResponse.builder()
-                        .message(exception.getMessage())
-                        .build());
+    @ExceptionHandler({AuthorNotFoundException.class})
+    protected ResponseEntity<ErrorResponse> handle(AuthorNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(
+                        ErrorResponse.builder()
+                                .message(exception.getMessage())
+                                .build()
+                );
     }
+//
+//    @ExceptionHandler({Exception.class})
+//    protected ResponseEntity<ErrorResponse> handle(Exception exception) {
+//        return ResponseEntity.internalServerError()
+//                .body(ErrorResponse.builder()
+//                        .message(exception.getMessage())
+//                        .build());
+//    }
 }
