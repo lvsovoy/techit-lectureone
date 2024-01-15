@@ -1,11 +1,16 @@
 package lt.techin.lectureone.controller;
 
+import io.swagger.v3.oas.annotations.OpenAPI31;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lt.techin.lectureone.model.request.ReactionAction;
 import lt.techin.lectureone.model.request.RecordReactionRequest;
+import lt.techin.lectureone.model.response.ErrorResponse;
 import lt.techin.lectureone.model.response.UserReactionResponse;
 import lt.techin.lectureone.service.BookService;
 import org.hibernate.validator.constraints.UUID;

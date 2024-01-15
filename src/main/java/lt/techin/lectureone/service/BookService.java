@@ -1,8 +1,10 @@
 package lt.techin.lectureone.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lt.techin.lectureone.exception.AuthorNotFoundException;
+import lt.techin.lectureone.external.IOpenLibraryClient;
 import lt.techin.lectureone.external.OpenLibraryClient;
 import lt.techin.lectureone.external.model.AuthorWorksResponse;
 import lt.techin.lectureone.model.mapper.BookMapper;
@@ -14,6 +16,9 @@ import lt.techin.lectureone.persistence.AuthorRepository;
 import lt.techin.lectureone.persistence.ReactionRepository;
 import lt.techin.lectureone.persistence.model.AuthorRecord;
 import lt.techin.lectureone.persistence.model.ReactionRecord;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -28,11 +33,13 @@ import static lt.techin.lectureone.model.request.ReactionAction.*;
 @RequiredArgsConstructor
 public class BookService {
 
-    private final OpenLibraryClient openLibraryClient;
+    private final IOpenLibraryClient openLibraryClient;
     private final AuthorRepository authorRepository;
     private final ReactionRepository reactionRepository;
 
     public BookResponse getAuthorsWorks(String author, int count) throws IOException, InterruptedException {
+
+//        String olid = openLibraryClient.getAuthorOlid(author);
 
         String olid = "";
 
@@ -52,12 +59,21 @@ public class BookService {
             throw new AuthorNotFoundException("Could not find author: " + author);
         }
 
-        authorRepository.save(new AuthorRecord(sanitizeAuthorKey(author), olid));
+        saveToAuthorRepo(new AuthorRecord(sanitizeAuthorKey(author), olid));
 
         AuthorWorksResponse authorWorksResponse = openLibraryClient.getWorks(olid);
 
         return BookMapper.map(authorWorksResponse, author);
     }
+
+    @SneakyThrows
+    @Async
+    public void saveToAuthorRepo(AuthorRecord record) {
+        Thread.sleep(5000);
+        authorRepository.save(record);
+        log.debug("wrote to repo after sleep");
+    }
+
 
     public void recordReaction(RecordReactionRequest recordReactionRequest) {
 
@@ -88,6 +104,18 @@ public class BookService {
         }
 
         return userReactionResponse;
+    }
+
+    @CacheEvict("authors")
+    public void evictAuthorFromCache(String author){
+        log.debug("[x] evicted {} from cache", author);
+    }
+
+//    @Scheduled(cron = "0 * * * * *") // every minute
+    @Scheduled(fixedRate = 15000, initialDelay = 30000) //rate in millis
+    @CacheEvict(value = "authors", allEntries = true)
+    public void evictAllCache() {
+        log.debug("[x] evicted whole authors cache");
     }
 
     protected static String sanitizeAuthorKey(String author) {

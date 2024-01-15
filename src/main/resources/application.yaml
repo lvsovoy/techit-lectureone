@@ -19,3 +19,12 @@ spring:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
   h2:
     console.enabled: true
+
+
+app:
+  external:
+    open-library-client:
+      base: "https://openlibrary.org"
+      endpoints:
+        search-authors: "/search/authors.json"
+        get-authors-works: "/authors/{olid}/works.json"

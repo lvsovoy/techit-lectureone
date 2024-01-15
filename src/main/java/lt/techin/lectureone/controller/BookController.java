@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import lt.techin.lectureone.model.response.BookResponse;
 import lt.techin.lectureone.service.BookService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 @Slf4j
@@ -35,5 +32,12 @@ public class BookController {
         log.debug("Called get author works endpoint with author: {}", author);
 
         return bookService.getAuthorsWorks(author, count);
+    }
+
+    @DeleteMapping
+    public void cacheEvictAuthor (
+            @RequestParam @NotBlank String author
+    ) {
+        bookService.evictAuthorFromCache(author);
     }
 }

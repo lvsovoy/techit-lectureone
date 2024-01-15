@@ -1,0 +1,7 @@
+app:
+  external:
+    open-library-client:
+      base: "https://test.openlibrary.org"
+      endpoints:
+        search-authors: "/search/authors.json"
+        get-authors-works: "/authors/{olid}/works.json"
