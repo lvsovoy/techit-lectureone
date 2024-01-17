@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
 @EnableCaching
-@EnableScheduling
+//@EnableScheduling disabled because annoying
 @SpringBootApplication
 public class LectureoneApplication {
 

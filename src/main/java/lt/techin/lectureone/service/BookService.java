@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lt.techin.lectureone.exception.AuthorNotFoundException;
 import lt.techin.lectureone.external.IOpenLibraryClient;
-import lt.techin.lectureone.external.OpenLibraryClient;
 import lt.techin.lectureone.external.model.AuthorWorksResponse;
 import lt.techin.lectureone.model.mapper.BookMapper;
 import lt.techin.lectureone.model.request.ReactionAction;
@@ -17,16 +16,18 @@ import lt.techin.lectureone.persistence.ReactionRepository;
 import lt.techin.lectureone.persistence.model.AuthorRecord;
 import lt.techin.lectureone.persistence.model.ReactionRecord;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-import static lt.techin.lectureone.model.request.ReactionAction.*;
+import static lt.techin.lectureone.model.request.ReactionAction.DISLIKE;
+import static lt.techin.lectureone.model.request.ReactionAction.LIKE;
 
 @Slf4j
 @Service
@@ -36,7 +37,9 @@ public class BookService {
     private final IOpenLibraryClient openLibraryClient;
     private final AuthorRepository authorRepository;
     private final ReactionRepository reactionRepository;
+    private final AsyncAuthorRepositoryService asyncAuthorRepositoryService;
 
+    @SneakyThrows
     public BookResponse getAuthorsWorks(String author, int count) throws IOException, InterruptedException {
 
 //        String olid = openLibraryClient.getAuthorOlid(author);
@@ -59,19 +62,27 @@ public class BookService {
             throw new AuthorNotFoundException("Could not find author: " + author);
         }
 
-        saveToAuthorRepo(new AuthorRecord(sanitizeAuthorKey(author), olid));
+
+        CompletableFuture<Map<String, String>> async1Future = asyncAuthorRepositoryService.async1();
+        CompletableFuture<Map<String, String>> async2Future = asyncAuthorRepositoryService.async2();
+        CompletableFuture<Map<String, String>> async3Future = asyncAuthorRepositoryService.async3();
+
+
+
+        log.debug("started execution");
+
+        CompletableFuture.anyOf(
+                async1Future, async2Future, async3Future
+        ).get();
+
+        log.debug("{}", async1Future.getNow(Map.of("absent", "absent")));
+        log.debug("{}", async2Future.getNow(Map.of("absent", "absent")));
+        log.debug("{}", async3Future.getNow(Map.of("absent", "absent")));
+        log.debug("finished execution");
 
         AuthorWorksResponse authorWorksResponse = openLibraryClient.getWorks(olid);
 
         return BookMapper.map(authorWorksResponse, author);
-    }
-
-    @SneakyThrows
-    @Async
-    public void saveToAuthorRepo(AuthorRecord record) {
-        Thread.sleep(5000);
-        authorRepository.save(record);
-        log.debug("wrote to repo after sleep");
     }
 
 
@@ -107,11 +118,11 @@ public class BookService {
     }
 
     @CacheEvict("authors")
-    public void evictAuthorFromCache(String author){
+    public void evictAuthorFromCache(String author) {
         log.debug("[x] evicted {} from cache", author);
     }
 
-//    @Scheduled(cron = "0 * * * * *") // every minute
+    //    @Scheduled(cron = "0 * * * * *") // every 0th second of a minute
     @Scheduled(fixedRate = 15000, initialDelay = 30000) //rate in millis
     @CacheEvict(value = "authors", allEntries = true)
     public void evictAllCache() {

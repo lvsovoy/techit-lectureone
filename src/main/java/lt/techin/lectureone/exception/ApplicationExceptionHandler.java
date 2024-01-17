@@ -34,6 +34,17 @@ public class ApplicationExceptionHandler {
                         .build());
     }
 
+//401
+    @ExceptionHandler({UnauthorizedException.class})
+    protected ResponseEntity<ErrorResponse> handle(UnauthorizedException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        ErrorResponse.builder()
+                                .message(exception.getMessage())
+                                .build()
+                );
+    }
+
 //404
     @ExceptionHandler({AuthorNotFoundException.class})
     protected ResponseEntity<ErrorResponse> handle(AuthorNotFoundException exception) {

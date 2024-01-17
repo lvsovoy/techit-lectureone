@@ -2,6 +2,7 @@ logging:
   level:
     root: INFO
     lt.techin: DEBUG
+    org.springframework.security: TRACE
 
 spring:
   jackson:
@@ -19,7 +20,10 @@ spring:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
   h2:
     console.enabled: true
-
+  security:
+    user:
+      name: admin
+      password: password1
 
 app:
   external:
@@ -28,3 +32,6 @@ app:
       endpoints:
         search-authors: "/search/authors.json"
         get-authors-works: "/authors/{olid}/works.json"
+
+  secret:
+    author-secret: "all your base are belong to us"
